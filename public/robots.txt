@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://top-contributors-api.vercel.app/sitemap.xml

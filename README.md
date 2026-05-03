@@ -1,103 +1,88 @@
-# 🏆 My Top Contributors
+# GitHub Top Contributors SVG
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Website-6366f1?style=for-the-badge)](https://top-contributors-api.vercel.app)
-
-A personalized, zero-configuration system to automatically calculate and showcase the **top contributors across all your public GitHub repositories** directly on your GitHub Profile README.
-
-By splitting the workload between a daily GitHub Action and a lightning-fast Vercel API, this project gives you a production-grade contributor image without ever hitting GitHub API rate limits. Best of all? **It requires absolutely zero configuration.** Just fork, deploy, and you're done!
-
-👉 **Curious about the engineering?** Read [HOW THIS WORKS.md](HOW%20THIS%20WORKS.md) for a deep dive into how we bypass GitHub's API rate limits and SVG restrictions.
+A zero-dependency, single-file Vercel serverless API that fetches a GitHub user's top contributors across **all public repos** and returns them as a clean SVG with circular avatars — ready to embed anywhere.
 
 ---
 
-## 🎯 Features
+## Usage
 
-* **Zero Config**: Automatically knows your GitHub username just by being in your account.
-* **Profile-Wide Aggregation**: Scans all your public repositories to find the top contributors.
-* **Smart Filtering**: Automatically excludes the repository owner and bots.
-* **100% GitHub README Safe**: Renders as a raw PNG image, bypassing GitHub's strict SVG sanitization rules.
-* **Lightning Fast**: Relies on a scheduled GitHub Action to cache data offline, so the API endpoint renders instantly without hitting GitHub API rate limits.
-* **Built-in Landing Page**: Comes with a stunning, auto-generated documentation website right out of the box!
-
----
-
-## 🛠️ Step-by-Step Setup Guide
-
-Setting this up takes less than 2 minutes. Follow these 3 simple steps:
-
-### 1️⃣ Fork the Repository
-Click the **Fork** button at the top right of this page to create your own copy of the repository.
-
-### 2️⃣ Enable & Run GitHub Actions
-This project uses an automatic script to calculate your contributors daily. Since you just forked it, you need to enable it and run it for the first time.
-
-1. Go to the **Actions** tab at the top of your repository.
-2. Click the green **"I understand my workflows, go ahead and enable them"** button.
-3. On the left sidebar, click **Aggregate Top Contributors**.
-4. Click the **Run workflow** dropdown on the right side, and hit the green **Run workflow** button.
-
-> ⏳ *Wait about 30 seconds for it to finish and show a green checkmark! Your data is now successfully generated.*
-
-### 3️⃣ Deploy to Vercel
-Now, let's deploy the API that serves the beautiful image and landing page.
-
-1. Create a free account on [Vercel](https://vercel.com) (log in with GitHub).
-2. From the dashboard, click **Add New...** > **Project**.
-3. Import your newly forked `top-contributors-api` repository.
-4. Leave everything blank! **No environment variables are needed.**
-5. Click **Deploy**.
-
-> 🔗 *Once finished, Vercel will give you a domain (e.g., `https://your-app.vercel.app`). Copy this URL!*
-
----
-
-## 🎨 Usage
-
-Now that your API is live, you can embed the dynamic image directly into your GitHub Profile `README.md`!
-
-### Basic Embedding
-Copy this markdown snippet and replace the URL with your Vercel URL from Step 3:
+Embed in any GitHub README:
 
 ```md
-## My Top Contributors 🏆
-
-![Top Contributors](https://your-app.vercel.app/api/contributors)
-```
-
-### ⚙️ Customization Parameters
-You can customize the image dynamically by adding parameters to the URL.
-
-| Parameter | Default | Description |
-| :--- | :---: | :--- |
-| `limit` | `5` | The number of contributors to display. |
-| `size` | `80` | The size of the circular avatars in pixels. |
-
-### Examples
-
-**Show the Top 10 Contributors:**
-```md
-![Top Contributors](https://your-app.vercel.app/api/contributors?limit=10)
-```
-
-**Compact view (Top 3 contributors, tiny 50px avatars):**
-```md
-![Top Contributors](https://your-app.vercel.app/api/contributors?limit=3&size=50)
+![Top Contributors](https://your-app.vercel.app/api/contributors?username=YOUR_GITHUB_USERNAME)
 ```
 
 ---
 
-## 💻 Local Offline Testing
+## Query Parameters
 
-If you want to modify the code or test the output locally without deploying to Vercel:
+| Parameter | Default | Allowed Values | Description |
+|---|---|---|---|
+| `username` | **required** | any GitHub username | The GitHub user whose contributors are shown |
+| `limit` | `10` | `1` – `20` | How many top contributors to display |
+| `size` | `64` | `24` – `128` | Diameter of each avatar circle in pixels |
+| `hide_bots` | `true` | `true` / `false` | Whether to filter out GitHub bot accounts |
 
-```bash
-# 1. Install dependencies
-npm install
+> **Note:** The repo owner (`username`) is always excluded from the results — no parameter needed.
 
-# 2. Generate mock data locally (replace your-username)
-GH_USERNAME=your-username node scripts/aggregate.js
+---
 
-# 3. Run the local development server
-npm run dev
+## Examples
+
+**Default — top 10 contributors, 64px circles:**
+```md
+![Top Contributors](https://your-app.vercel.app/api/contributors?username=torvalds)
 ```
-*Visit `http://localhost:3000` to view the beautiful landing page and test your API!*
+
+**Show only top 5:**
+```md
+![Top Contributors](https://your-app.vercel.app/api/contributors?username=torvalds&limit=5)
+```
+
+**Larger avatars (80px):**
+```md
+![Top Contributors](https://your-app.vercel.app/api/contributors?username=torvalds&size=80)
+```
+
+**Include bots in results:**
+```md
+![Top Contributors](https://your-app.vercel.app/api/contributors?username=torvalds&hide_bots=false)
+```
+
+**All params combined:**
+```md
+![Top Contributors](https://your-app.vercel.app/api/contributors?username=torvalds&limit=8&size=72&hide_bots=false)
+```
+
+---
+
+## How It Works
+
+1. Fetches all public repos for `username` via the GitHub API
+2. Fetches contributors for each repo in parallel
+3. Aggregates contribution counts across all repos
+4. Filters out the owner (always) and bots (by default)
+5. Returns the top N as an SVG — avatars are embedded as base64 so GitHub's image proxy renders them correctly
+
+---
+
+## Deploy Your Own
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/YOUR_REPO)
+
+**Files needed (that's it):**
+```
+api/contributors.js   ← the API
+vercel.json           ← routing config
+package.json          ← declares ES module type
+```
+
+No npm install. No build step. Just push and deploy.
+
+---
+
+## Limits
+
+- GitHub's unauthenticated API allows **60 requests/hour per IP**. For users with many repos this could be hit on the first cold request. Subsequent requests are cached on Vercel's edge for **1 hour**.
+- Max `limit` is capped at **20** to keep response times reasonable.
+- Max `size` is capped at **128px**.

@@ -1,82 +1,151 @@
-const fs = require('fs');
-const path = require('path');
-const axios = require('axios');
-const { createCanvas, loadImage } = require('canvas');
+export default async function handler(req, res) {
+  const {
+    username,
+    limit = 10,
+    size = 64,
+    hide_bots = 'true',
+  } = req.query;
 
-module.exports = async (req, res) => {
-  const { limit = 5, size = 80 } = req.query;
+  if (!username) {
+    return res.status(400).send('Missing ?username= parameter');
+  }
 
-  // Safety caps: prevent users from requesting massive amounts of data or giant images
-  // which could crash the server or incur high costs.
-  const limitInt = Math.min(parseInt(limit, 10) || 5, 50);  // Max 50 contributors
-  const sizeInt = Math.min(parseInt(size, 10) || 80, 200);  // Max 200px per avatar
-  const gap = 16;
+  const maxContributors = Math.min(parseInt(limit, 10) || 10, 20);
+  const avatarSize = Math.min(Math.max(parseInt(size, 10) || 64, 24), 128);
+  const filterBots = hide_bots !== 'false';
+  const headers = { 'User-Agent': 'github-contributors-svg' };
 
   try {
-    const dataPath = path.join(__dirname, '..', 'data', 'contributors.json');
-    
-    if (!fs.existsSync(dataPath)) {
-      return res.status(404).send('Data not found for username');
-    }
+    // 1. Fetch all public repos (up to 100)
+    const reposRes = await fetch(
+      `https://api.github.com/users/${username}/repos?per_page=100&type=public`,
+      { headers }
+    );
+    if (!reposRes.ok) throw new Error(`GitHub API error: ${reposRes.status}`);
+    const repos = await reposRes.json();
 
-    const data = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
-    const topContributors = data.slice(0, limitInt);
+    // 2. Fetch contributors for each repo in parallel
+    const contributorMaps = await Promise.all(
+      repos.map(async (repo) => {
+        try {
+          const r = await fetch(
+            `https://api.github.com/repos/${username}/${repo.name}/contributors?per_page=100&anon=false`,
+            { headers }
+          );
+          if (!r.ok) return [];
+          return await r.json();
+        } catch {
+          return [];
+        }
+      })
+    );
 
-    if (topContributors.length === 0) {
-      // Vercel serverless functions do not have system fonts installed by default, 
-      // which causes canvas to render text as "tofu" blocks.
-      // To fix this cleanly, we just redirect to a pre-rendered placeholder PNG.
-      res.statusCode = 302;
-      res.setHeader('Location', 'https://placehold.co/400x80/1e1e2e/a6accd.png?text=Run+GitHub+Action+to+generate+data');
-      return res.end();
-    }
-
-    // Canvas dimensions
-    const width = (topContributors.length * sizeInt) + ((topContributors.length - 1) * gap);
-    const height = sizeInt;
-
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext('2d');
-
-    // Load and draw all avatars
-    for (let i = 0; i < topContributors.length; i++) {
-      const contributor = topContributors[i];
-      try {
-        const response = await axios.get(contributor.avatar, { responseType: 'arraybuffer' });
-        const img = await loadImage(Buffer.from(response.data, 'binary'));
-        
-        const x = i * (sizeInt + gap);
-        const y = 0;
-        
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(x + sizeInt / 2, y + sizeInt / 2, sizeInt / 2, 0, Math.PI * 2, true);
-        ctx.closePath();
-        ctx.clip();
-        
-        ctx.drawImage(img, x, y, sizeInt, sizeInt);
-        
-        ctx.restore();
-      } catch (err) {
-        console.error(`Failed to load avatar for ${contributor.username}:`, err.message);
-        // Draw a gray circle placeholder
-        const x = i * (sizeInt + gap);
-        const y = 0;
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(x + sizeInt / 2, y + sizeInt / 2, sizeInt / 2, 0, Math.PI * 2, true);
-        ctx.fillStyle = '#cccccc';
-        ctx.fill();
-        ctx.restore();
+    // 3. Aggregate contribution counts
+    const totals = {};
+    for (const list of contributorMaps) {
+      if (!Array.isArray(list)) continue;
+      for (const c of list) {
+        if (!c.login) continue; // skip anonymous contributors
+        // Self is always excluded
+        if (c.login.toLowerCase() === username.toLowerCase()) continue;
+        // Bots: filtered by default, pass hide_bots=false to include them
+        if (filterBots && c.type === 'Bot') continue;
+        totals[c.login] = (totals[c.login] || 0) + c.contributions;
+        if (!totals[c.login + '__avatar']) {
+          totals[c.login + '__avatar'] = c.avatar_url;
+        }
       }
     }
 
-    res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate');
+    // 4. Sort and pick top N
+    const top = Object.entries(totals)
+      .filter(([key]) => !key.includes('__avatar'))
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, maxContributors)
+      .map(([login, contributions]) => ({
+        login,
+        contributions,
+        avatar: totals[login + '__avatar'],
+      }));
 
-    canvas.createPNGStream().pipe(res);
-  } catch (error) {
-    console.error('API Error:', error);
-    res.status(500).send('Internal Server Error');
+    if (top.length === 0) {
+      return res
+        .status(200)
+        .setHeader('Content-Type', 'image/svg+xml')
+        .setHeader('Cache-Control', 's-maxage=3600')
+        .send(emptySvg());
+    }
+
+    // 5. Fetch avatar images and convert to base64 data URIs
+    const avatarData = await Promise.all(
+      top.map(async (c) => {
+        try {
+          const r = await fetch(`${c.avatar}&s=${avatarSize * 2}`); // 2x for retina
+          const buf = await r.arrayBuffer();
+          const b64 = Buffer.from(buf).toString('base64');
+          const mime = r.headers.get('content-type') || 'image/jpeg';
+          return { ...c, dataUri: `data:${mime};base64,${b64}` };
+        } catch {
+          return { ...c, dataUri: null };
+        }
+      })
+    );
+
+    // 6. Build SVG
+    const gap = Math.round(avatarSize * 0.18); // gap scales with size
+    const pad = Math.round(avatarSize * 0.12); // outer padding scales too
+    const totalW = pad + top.length * (avatarSize + gap) - gap + pad;
+    const totalH = pad + avatarSize + pad;
+
+    const defs = avatarData
+      .map(
+        (c, i) => `
+      <clipPath id="clip${i}">
+        <circle cx="${pad + i * (avatarSize + gap) + avatarSize / 2}" cy="${pad + avatarSize / 2}" r="${avatarSize / 2}" />
+      </clipPath>`
+      )
+      .join('');
+
+    const images = avatarData
+      .map((c, i) => {
+        const cx = pad + i * (avatarSize + gap);
+        const cy = pad;
+        const href = c.dataUri || `https://avatars.githubusercontent.com/${c.login}?s=${avatarSize * 2}`;
+        return `
+      <a href="https://github.com/${c.login}" target="_blank" rel="noopener">
+        <image
+          x="${cx}" y="${cy}"
+          width="${avatarSize}" height="${avatarSize}"
+          href="${href}"
+          clip-path="url(#clip${i})"
+        />
+        <circle
+          cx="${cx + avatarSize / 2}" cy="${cy + avatarSize / 2}" r="${avatarSize / 2 - 1}"
+          fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"
+        />
+        <title>${c.login} (${c.contributions} contributions)</title>
+      </a>`;
+      })
+      .join('');
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="${totalW}" height="${totalH}" viewBox="0 0 ${totalW} ${totalH}">
+  <defs>${defs}
+  </defs>
+  ${images}
+</svg>`;
+
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
+    return res.status(200).send(svg);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(`Error: ${err.message}`);
   }
-};
+}
+
+function emptySvg() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="40">
+    <text x="10" y="28" font-family="sans-serif" font-size="14" fill="#888">No contributors found.</text>
+  </svg>`;
+}

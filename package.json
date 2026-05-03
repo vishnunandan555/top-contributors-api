@@ -1,37 +1,5 @@
 {
-  "name": "top-contributors-api",
+  "name": "github-contributors-svg",
   "version": "1.0.0",
-  "description": "A **production-ready architecture** to compute and display **top contributors across all repositories of a GitHub user**, optimized for reliability, rate limits, and GitHub README compatibility.",
-  "main": "index.js",
-  "scripts": {
-    "dev": "node local-dev.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vishnunandan555/top-contributors-api.git"
-  },
-  "keywords": [
-    "github",
-    "contributors",
-    "api",
-    "profile-readme",
-    "dynamic-image",
-    "github-actions",
-    "vercel",
-    "open-source"
-  ],
-  "author": "Vishnu Nandan",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/vishnunandan555/top-contributors-api/issues"
-  },
-  "homepage": "https://github.com/vishnunandan555/top-contributors-api#readme",
-  "dependencies": {
-    "@vercel/analytics": "^2.0.1",
-    "axios": "^1.16.0",
-    "canvas": "^3.2.3",
-    "dotenv": "^17.4.2"
-  }
+  "type": "module"
 }
