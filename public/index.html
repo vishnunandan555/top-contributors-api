@@ -3,14 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Top Contributors API</title>
+  <title>My Top Contributors API - Showcase Your GitHub Community</title>
   
-  <meta name="description" content="A lightning-fast, zero-configuration API that generates dynamic contributor avatars for your GitHub profile.">
+  <meta name="title" content="My Top Contributors API - Showcase Your GitHub Community">
+  <meta name="description" content="A lightning-fast, zero-configuration API that generates dynamic contributor avatars for your GitHub profile. Showcase your community across all repositories.">
+  <meta name="keywords" content="github, contributors, api, profile readme, dynamic image, github actions, vercel, open source">
+  <meta name="author" content="Vishnu Nandan">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#8b5cf6">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://top-contributors-api.vercel.app/">
+  <meta property="og:title" content="My Top Contributors API - Showcase Your GitHub Community">
+  <meta property="og:description" content="A personalized, zero-configuration system to automatically calculate and showcase the top contributors across all your public GitHub repositories.">
+  <meta property="og:image" content="https://top-contributors-api.vercel.app/demo.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Top Contributors API">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://top-contributors-api.vercel.app/">
+  <meta property="twitter:title" content="My Top Contributors API - Showcase Your GitHub Community">
+  <meta property="twitter:description" content="A personalized, zero-configuration system to automatically showcase the top contributors across all your public GitHub repositories.">
+  <meta property="twitter:image" content="https://top-contributors-api.vercel.app/demo.png">
+
+  <!-- Canonical and Favicon -->
+  <link rel="canonical" href="https://top-contributors-api.vercel.app/">
+  <link rel="icon" type="image/png" href="/demo.png">
+
   <link rel="stylesheet" href="/index.css">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "My Top Contributors API",
+    "operatingSystem": "Web",
+    "applicationCategory": "DeveloperApplication",
+    "description": "A personalized, zero-configuration system to automatically calculate and showcase the top contributors across all your public GitHub repositories.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Vishnu Nandan",
+      "url": "https://github.com/vishnunandan555"
+    }
+  }
+  </script>
 </head>
 <body>
   <div class="background-elements">
@@ -22,7 +72,7 @@
     <!-- Hero Section -->
     <header class="glass-card hero text-center">
       <div class="badge">API Status: Online</div>
-      <h1 class="title">My Top Contributors</h1>
+      <h1 class="title">My Top Contributors API</h1>
       <p class="subtitle">A personalized, zero-configuration system to automatically calculate and showcase the top contributors across all your public GitHub repositories directly on your GitHub Profile README.</p>
       
       <div class="setup-notice">
@@ -50,16 +100,16 @@
     </header>
 
     <!-- Example Section -->
-    <section class="glass-card text-center">
+    <section class="glass-card text-center" aria-label="Profile Integration Demo">
       <h2 class="section-title">✨ Profile Integration</h2>
       <p class="text-paragraph">Here is how it looks when integrated into your GitHub profile README:</p>
       <div class="demo-wrapper">
-        <img src="/demo.png" alt="Profile Example" class="demo-static-image">
+        <img src="/demo.png" alt="Top GitHub Contributors API showing dynamic contributor avatars on a GitHub profile README" class="demo-static-image" loading="lazy" width="600" height="100">
       </div>
     </section>
 
     <!-- Features Section -->
-    <section class="glass-card">
+    <section class="glass-card" aria-label="Features">
       <h2 class="section-title">🎯 Features</h2>
       <ul class="feature-list">
         <li><strong>⚡ Zero Config:</strong> Automatically knows your GitHub username just by being in your account.</li>

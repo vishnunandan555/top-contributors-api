@@ -11,8 +11,8 @@
     "type": "git",
     "url": "git+https://github.com/vishnunandan555/top-contributors-api.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["github", "contributors", "api", "profile-readme", "dynamic-image", "github-actions", "vercel", "open-source"],
+  "author": "Vishnu Nandan",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
