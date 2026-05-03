@@ -1,63 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Top Contributors API</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0d1117;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      color: #e6edf3;
-    }
-
-    .card {
-      text-align: center;
-      padding: 2.5rem 3rem;
-      border: 1px solid #30363d;
-      border-radius: 12px;
-      background: #161b22;
-      max-width: 420px;
-      width: 90%;
-    }
-
-    h1 {
-      font-size: 1.4rem;
-      margin-bottom: 0.5rem;
-      color: #e6edf3;
-    }
-
-    p {
-      font-size: 0.9rem;
-      color: #8b949e;
-      margin-bottom: 1.5rem;
-    }
-
-    a.btn {
-      display: inline-block;
-      padding: 0.6rem 1.4rem;
-      background: #238636;
-      color: #fff;
-      border-radius: 6px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: background 0.2s;
-    }
-
-    a.btn:hover { background: #2ea043; }
-  </style>
+  <meta name="description"
+    content="Generate embeddable GitHub contributor SVGs for any GitHub user. Free, zero-setup API." />
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-  <div class="card">
-    <h1>Top Contributors API</h1>
-    <p>Returns GitHub contributors as an embeddable SVG.</p>
-    <a class="btn" href="/api/contributors">Go to API →</a>
+
+  <!-- Floating warning box (top-right) -->
+  <div class="warning-float">
+    <div class="w-title">
+      <span class="w-emoji">&#9888;&#65039;</span> This is a Public API
+    </div>
+    <div class="w-desc">
+      This API is shared and may hit GitHub rate limits on high usage.<br>
+      <a href="https://top-contributors-api.vercel.app/" target="_blank" rel="noopener"> You can Setup the non-OTG
+        edition to prevent it</a>
+    </div>
   </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h1>
+        <a class="gh-link" href="https://github.com/vishnunandan555/top-contributors-api/tree/otg" target="_blank"
+          rel="noopener">
+          <svg viewBox="0 0 16 16" fill="currentColor">
+            <path
+              d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z" />
+          </svg>
+        </a>
+        Top Contributors API
+      </h1>
+      <h4>- OTG Version -</h4>
+      <p>Embed top contributors avatars across all repositories as an SVG.</p>
+    </div>
+
+    <a id="defaultApiLink" href="https://top-contributors-otg.vercel.app/api/contributors?username=torvalds"
+      target="_blank" rel="noopener" class="health-btn">
+      API Checkk
+    </a>
+
+    <div class="divider">Generate your link</div>
+
+    <!-- Username -->
+    <div class="field">
+      <span class="label-tip"
+        data-tip="Enter the GitHub username whose top contributors you want to show. The owner is always excluded from the results.">
+        GitHub Username <span class="req">*</span>
+      </span>
+      <input type="text" id="username" placeholder="e.g. torvalds" autocomplete="off" spellcheck="false" />
+    </div>
+
+    <!-- Limit + Size -->
+    <div class="row">
+      <div class="field">
+        <span class="label-tip"
+          data-tip="Maximum number of contributors to display. Sorted by total contributions across all public repos. Range: 1 to 20.">
+          Limit
+        </span>
+        <input type="number" id="limit" value="10" min="1" max="20" />
+      </div>
+      <div class="field">
+        <span class="label-tip"
+          data-tip="Diameter of each avatar circle in pixels. 64px is a good default for most READMEs. Range: 24 to 128.">
+          Size (px)
+        </span>
+        <input type="number" id="size" value="64" min="24" max="128" />
+      </div>
+    </div>
+
+    <!-- Hide bots -->
+    <div class="toggle-row">
+      <span class="toggle-label-tip"
+        data-tip="When enabled, bot accounts like dependabot and renovate are filtered out of the contributor list.">
+        Hide bots
+      </span>
+      <label class="switch">
+        <input type="checkbox" id="hideBots" checked />
+        <span class="slider-track"></span>
+      </label>
+    </div>
+
+    <!-- Output -->
+    <div id="output" class="output-box empty">Fill in a username to generate your .md file (readme) snippet</div>
+    <p id="readmeHint" class="readme-hint">Paste this in your README directly</p>
+
+    <!-- Buttons -->
+    <div class="actions">
+      <div class="btn-row">
+        <button id="copyBtn" disabled>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
+            <path
+              d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z" />
+            <path
+              d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z" />
+          </svg>
+          Copy
+        </button>
+        <button id="openBtn" disabled>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
+            <path
+              d="M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z" />
+          </svg>
+          Open
+        </button>
+      </div>
+      <button id="showBtn" disabled>
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
+          <path
+            d="M8 2c1.981 0 3.671.992 4.933 2.078 1.27 1.091 2.187 2.345 2.637 3.023a1.62 1.62 0 0 1 0 1.798c-.45.678-1.367 1.932-2.637 3.023C11.671 13.008 9.981 14 8 14c-1.981 0-3.671-.992-4.933-2.078C1.797 10.83.88 9.576.43 8.898a1.62 1.62 0 0 1 0-1.798c.45-.677 1.367-1.931 2.637-3.022C4.329 2.992 6.019 2 8 2ZM1.679 7.932a.12.12 0 0 0 0 .136c.411.622 1.241 1.75 2.366 2.717C5.176 11.758 6.527 12.5 8 12.5c1.473 0 2.824-.742 3.955-1.715 1.125-.967 1.955-2.095 2.366-2.717a.12.12 0 0 0 0-.136c-.411-.622-1.241-1.75-2.366-2.717C10.824 4.242 9.473 3.5 8 3.5c-1.473 0-2.824.742-3.955 1.715-1.125.967-1.955 2.095-2.366 2.717ZM8 10a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 10Z" />
+        </svg>
+        Show preview
+      </button>
+    </div>
+  </div>
+
+  <!-- Preview panel -->
+  <div id="previewPanel">
+    <div class="preview-header">
+      <strong>Preview</strong> &mdash; how it looks in your README
+    </div>
+    <div class="preview-body">
+      <div class="preview-spinner" id="spinner"></div>
+      <img id="previewImg" alt="Contributors preview" />
+      <div class="preview-error" id="previewError"></div>
+    </div>
+  </div>
+
+  <script>
+    const BASE = 'https://top-contributors-otg.vercel.app/api/contributors';
+
+    const usernameEl = document.getElementById('username');
+    const limitEl = document.getElementById('limit');
+    const sizeEl = document.getElementById('size');
+    const hideBotsEl = document.getElementById('hideBots');
+    const outputEl = document.getElementById('output');
+    const readmeHint = document.getElementById('readmeHint');
+    const copyBtn = document.getElementById('copyBtn');
+    const openBtn = document.getElementById('openBtn');
+    const showBtn = document.getElementById('showBtn');
+    const previewPanel = document.getElementById('previewPanel');
+    const previewImg = document.getElementById('previewImg');
+    const spinner = document.getElementById('spinner');
+    const previewError = document.getElementById('previewError');
+
+    let currentMarkdown = '';
+    let currentApiUrl = '';
+
+    function clamp(val, min, max) {
+      return Math.min(Math.max(parseInt(val, 10) || min, min), max);
+    }
+
+    function build() {
+      const user = usernameEl.value.trim();
+      if (!user) {
+        outputEl.textContent = 'Fill in a username to generate your README snippet';
+        outputEl.className = 'output-box empty';
+        readmeHint.className = 'readme-hint';
+        copyBtn.disabled = true;
+        openBtn.disabled = true;
+        showBtn.disabled = true;
+        currentMarkdown = '';
+        currentApiUrl = '';
+        hidePreview();
+        return;
+      }
+
+      const limit = clamp(limitEl.value, 1, 20);
+      const size = clamp(sizeEl.value, 24, 128);
+      const hideBots = hideBotsEl.checked;
+
+      const params = new URLSearchParams({ username: user });
+      if (limit !== 10) params.set('limit', limit);
+      if (size !== 64) params.set('size', size);
+      if (!hideBots) params.set('hide_bots', 'false');
+
+      currentApiUrl = `${BASE}?${params}`;
+      currentMarkdown = `![Top Contributors](${currentApiUrl})`;
+
+      outputEl.textContent = currentMarkdown;
+      outputEl.className = 'output-box';
+      readmeHint.className = 'readme-hint visible';
+      copyBtn.disabled = false;
+      openBtn.disabled = false;
+      showBtn.disabled = false;
+
+      if (previewPanel.classList.contains('visible')) loadPreview();
+    }
+
+    function hidePreview() {
+      previewPanel.classList.remove('visible');
+      previewImg.classList.remove('visible');
+      spinner.classList.remove('visible');
+      previewError.classList.remove('visible');
+    }
+
+    function loadPreview() {
+      previewPanel.classList.add('visible');
+      previewImg.classList.remove('visible');
+      previewError.classList.remove('visible');
+      spinner.classList.add('visible');
+
+      const url = currentApiUrl + '&_t=' + Date.now();
+      previewImg.onload = () => {
+        spinner.classList.remove('visible');
+        previewImg.classList.add('visible');
+      };
+      previewImg.onerror = () => {
+        spinner.classList.remove('visible');
+        previewError.textContent = 'Could not load preview. Make sure the username is valid.';
+        previewError.classList.add('visible');
+      };
+      previewImg.src = url;
+    }
+
+    [usernameEl, limitEl, sizeEl, hideBotsEl].forEach(el =>
+      el.addEventListener('input', build)
+    );
+
+    copyBtn.addEventListener('click', async () => {
+      if (!currentMarkdown) return;
+      try {
+        await navigator.clipboard.writeText(currentMarkdown);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = currentMarkdown;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+      outputEl.className = 'output-box copied flash';
+      const orig = copyBtn.innerHTML;
+      copyBtn.innerHTML = '&#10003; Copied!';
+      setTimeout(() => {
+        copyBtn.innerHTML = orig;
+        outputEl.className = 'output-box';
+      }, 1800);
+    });
+
+    openBtn.addEventListener('click', () => {
+      if (currentApiUrl) window.open(currentApiUrl, '_blank', 'noopener');
+    });
+
+    showBtn.addEventListener('click', () => {
+      if (!currentApiUrl) return;
+      loadPreview();
+    });
+  </script>
+
+  <div class="footer">
+    <span class="footer-text">
+      Made with <span class="heart">&#x1F49A;</span> by <a href="https://github.com/vishnunandan555" target="_blank" rel="noopener">Vishnu Nandan</a>
+    </span>
+  </div>
+
 </body>
+
 </html>

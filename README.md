@@ -2,15 +2,20 @@
 
 A zero-dependency, single-file Vercel serverless API that fetches a GitHub user's top contributors across **all public repos** and returns them as a clean SVG with circular avatars — ready to embed anywhere.
 
+**Live API:** `https://top-contributors-otg.vercel.app/api/contributors`
+
 ---
 
-## Usage
+## Quick Paste & Go
 
-Embed in any GitHub README:
+Copy the line below, replace `YOUR_GITHUB_USERNAME`, and drop it into any README:
 
 ```md
-![Top Contributors](https://your-app.vercel.app/api/contributors?username=YOUR_GITHUB_USERNAME)
+![Top Contributors](https://top-contributors-otg.vercel.app/api/contributors?username=YOUR_GITHUB_USERNAME)
 ```
+
+Or use the **interactive generator** on the website:
+https://top-contributors-otg.vercel.app
 
 ---
 
@@ -31,27 +36,27 @@ Embed in any GitHub README:
 
 **Default — top 10 contributors, 64px circles:**
 ```md
-![Top Contributors](https://your-app.vercel.app/api/contributors?username=torvalds)
+![Top Contributors](https://top-contributors-otg.vercel.app/api/contributors?username=torvalds)
 ```
 
 **Show only top 5:**
 ```md
-![Top Contributors](https://your-app.vercel.app/api/contributors?username=torvalds&limit=5)
+![Top Contributors](https://top-contributors-otg.vercel.app/api/contributors?username=torvalds&limit=5)
 ```
 
 **Larger avatars (80px):**
 ```md
-![Top Contributors](https://your-app.vercel.app/api/contributors?username=torvalds&size=80)
+![Top Contributors](https://top-contributors-otg.vercel.app/api/contributors?username=torvalds&size=80)
 ```
 
 **Include bots in results:**
 ```md
-![Top Contributors](https://your-app.vercel.app/api/contributors?username=torvalds&hide_bots=false)
+![Top Contributors](https://top-contributors-otg.vercel.app/api/contributors?username=torvalds&hide_bots=false)
 ```
 
 **All params combined:**
 ```md
-![Top Contributors](https://your-app.vercel.app/api/contributors?username=torvalds&limit=8&size=72&hide_bots=false)
+![Top Contributors](https://top-contributors-otg.vercel.app/api/contributors?username=torvalds&limit=8&size=72&hide_bots=false)
 ```
 
 ---
@@ -86,3 +91,4 @@ No npm install. No build step. Just push and deploy.
 - GitHub's unauthenticated API allows **60 requests/hour per IP**. For users with many repos this could be hit on the first cold request. Subsequent requests are cached on Vercel's edge for **1 hour**.
 - Max `limit` is capped at **20** to keep response times reasonable.
 - Max `size` is capped at **128px**.
+
