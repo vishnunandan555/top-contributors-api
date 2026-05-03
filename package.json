@@ -11,7 +11,16 @@
     "type": "git",
     "url": "git+https://github.com/vishnunandan555/top-contributors-api.git"
   },
-  "keywords": ["github", "contributors", "api", "profile-readme", "dynamic-image", "github-actions", "vercel", "open-source"],
+  "keywords": [
+    "github",
+    "contributors",
+    "api",
+    "profile-readme",
+    "dynamic-image",
+    "github-actions",
+    "vercel",
+    "open-source"
+  ],
   "author": "Vishnu Nandan",
   "license": "ISC",
   "type": "commonjs",
@@ -20,6 +29,7 @@
   },
   "homepage": "https://github.com/vishnunandan555/top-contributors-api#readme",
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "axios": "^1.16.0",
     "canvas": "^3.2.3",
     "dotenv": "^17.4.2"
