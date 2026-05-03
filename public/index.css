@@ -288,10 +288,11 @@ body {
 /* Footer */
 .footer {
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 1.15rem;
   color: var(--text-muted);
-  margin-top: 2rem;
-  font-weight: 300;
+  margin-top: 4rem;
+  font-weight: 400;
+  padding-bottom: 2rem;
 }
 
 .footer a {
@@ -303,6 +304,109 @@ body {
 
 .footer a:hover {
   color: var(--accent-primary);
+}
+
+/* OTG Public API Section */
+.otg-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.otg-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+              radial-gradient(circle at 70% 50%, rgba(236, 72, 153, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.otg-badge {
+  display: inline-block;
+  padding: 0.6rem 1.6rem;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+  color: #e9d5ff;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1.5rem;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.otg-badge:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.6) 0%, rgba(236, 72, 153, 0.6) 100%);
+  border-color: rgba(139, 92, 246, 0.8);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+  color: #ffffff;
+  filter: brightness(1.2);
+}
+
+.otg-example {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.otg-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.otg-url {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  word-break: break-all;
+}
+
+.otg-highlight {
+  color: #a78bfa;
+  font-weight: 700;
+  background: rgba(139, 92, 246, 0.15);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.otg-lead {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.btn-otg {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #a78bfa 100%);
+  color: white;
+  box-shadow: 0 10px 20px -10px rgba(139, 92, 246, 0.6);
+}
+
+.btn-otg:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 25px -10px rgba(139, 92, 246, 0.8);
 }
 
 /* Mobile Responsiveness */
