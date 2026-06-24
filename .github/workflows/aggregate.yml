@@ -2,7 +2,9 @@ name: Aggregate Top Contributors
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Runs daily at 00:00
+    # - cron: '0 0 * * *'  # Daily   – runs every day at 00:00 UTC
+    # - cron: '0 0 * * 1'  # Weekly  – runs every Monday at 00:00 UTC
+    - cron: '0 0 1 * *'    # Monthly – runs on the 1st of every month at 00:00 UTC
   workflow_dispatch: # Allows manual triggering from the GitHub UI
 
 permissions:
