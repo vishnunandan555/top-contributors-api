@@ -63,7 +63,9 @@ async function run() {
 
   // 2. Fetch contributors for each repo
   for (const repo of repos) {
-    // Skip forks if desired, but we'll include all owned repos for now
+    // Skip forked repos — their contributors belong to the upstream org, not us
+    if (repo.fork) continue;
+
     const contributorsUrl = `https://api.github.com/repos/${GH_USERNAME}/${repo.name}/contributors`;
     const repoContributors = await fetchAllPages(contributorsUrl);
     
